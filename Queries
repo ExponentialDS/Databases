@@ -1,0 +1,18 @@
+WITH tot_inc as
+ (
+SELECT Year(table.OrderDate) AS Year, SUM(table.LineTotal) AS 'Total_Income'
+FROM table.SalesOrderHeader soh
+INNER JOIN table.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+GROUP BY Year(soh.OrderDate)
+ ),
+ tot_cost as
+ (
+SELECT Year(soh.OrderDate) AS 'Year', SUM(pp.StandardCost) AS 'Total_Cost' FROM Production.Product pp
+INNER JOIN Sales.SalesOrderDetail sod ON sod.ProductID = pp.ProductID
+INNER JOIN Sales.SalesOrderHeader soh ON soh.SalesOrderID = sod.SalesOrderID
+GROUP BY Year(soh.OrderDate)
+ )
+select ti.Year, Total_Cost, Total_Income
+from tot_inc ti, tot_cost tc
+where ti.Year = tc.Year
+order by ti.Year
